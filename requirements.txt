@@ -1,0 +1,4 @@
+numerize==0.12
+python-dotenv==1.0.1
+slixmpp==1.8.6
+yt_dlp==2024.12.23
