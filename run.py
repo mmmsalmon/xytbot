@@ -85,7 +85,7 @@ class MUCBot(slixmpp.ClientXMPP):
                    for stanza objects and the Message stanza to see
                    how it may be used.
         """
-        if msg["mucnick"] != self.nick:
+        if msg["mucnick"] != self.nick and not msg['replace'].get('id'):
             video_id = yt.findall(msg["body"])
             if self.nick in msg["body"]:
                 self.send_message(
@@ -99,6 +99,7 @@ class MUCBot(slixmpp.ClientXMPP):
                     mbody=yt_link_preview(video_id[0]),
                     mtype="groupchat",
                 )
+        # bot admin commands
         elif msg["mucnick"] == os.getenv("OWNER"):
             if msg["body"] == "RELOAD":
                 # TODO importlib.reload()
@@ -162,6 +163,7 @@ if __name__ == "__main__":
     xmpp.register_plugin("xep_0030")  # Service Discovery
     xmpp.register_plugin("xep_0045")  # Multi-User Chat
     xmpp.register_plugin("xep_0199")  # XMPP Ping
+    xmpp.register_plugin('xep_0308')  # Last Message Correction
 
     # Connect to the XMPP server and start processing XMPP stanzas.
     xmpp.connect()
