@@ -6,7 +6,7 @@ import re
 import os
 from getpass import getpass
 from argparse import ArgumentParser
-from plugins.yt import yt_link_preview
+from plugins.yt import yt_link_preview, x_link_preview
 from dotenv import load_dotenv
 
 import slixmpp
@@ -14,6 +14,10 @@ import slixmpp
 yt = re.compile(
     r"(?:(?:https?:)?\/\/)?(?:(?:(?:www|m(?:usic)?)\.)?youtu(?:\.be|be\.com)\/(?:shorts\/|live\/|v\/|e(?:mbed)?\/|watch(?:\/|\?(?:\S+=\S+&)*v=)|oembed\?url=https?%3A\/\/(?:www|m(?:usic)?)\.youtube\.com\/watch\?(?:\S+=\S+&)*v%3D|attribution_link\?(?:\S+=\S+&)*u=(?:\/|%2F)watch(?:\?|%3F)v(?:=|%3D))?|www\.youtube-nocookie\.com\/embed\/)([\w-]{11})[\?&#]?\S*"
 )
+xcom = re.compile(
+    r"(?:https?:\/\/)(?:www\.)?(?:fixup)?x\.com\/(?:\w{1,20})\/status\/\d{1,25}"
+)
+tco = re.compile(r"\shttps:\/\/t.co\/\w+$")
 load_dotenv()
 
 
@@ -85,8 +89,9 @@ class MUCBot(slixmpp.ClientXMPP):
                    for stanza objects and the Message stanza to see
                    how it may be used.
         """
-        if msg["mucnick"] != self.nick and not msg['replace'].get('id'):
+        if msg["mucnick"] != self.nick and not msg["replace"].get("id"):
             video_id = yt.findall(msg["body"])
+            tweet = xcom.findall(msg["body"])
             if self.nick in msg["body"]:
                 self.send_message(
                     mto=msg["from"].bare,
@@ -99,6 +104,14 @@ class MUCBot(slixmpp.ClientXMPP):
                     mbody=yt_link_preview(video_id[0]),
                     mtype="groupchat",
                 )
+            elif tweet:
+                tweet_with_video = x_link_preview(tweet[0])
+                if tweet_with_video:
+                    self.send_message(
+                        mto=msg["from"].bare,
+                        mbody=tco.sub("", tweet_with_video),
+                        mtype="groupchat",
+                    )
         # bot admin commands
         elif msg["mucnick"] == os.getenv("OWNER"):
             if msg["body"] == "RELOAD":
@@ -163,7 +176,7 @@ if __name__ == "__main__":
     xmpp.register_plugin("xep_0030")  # Service Discovery
     xmpp.register_plugin("xep_0045")  # Multi-User Chat
     xmpp.register_plugin("xep_0199")  # XMPP Ping
-    xmpp.register_plugin('xep_0308')  # Last Message Correction
+    xmpp.register_plugin("xep_0308")  # Last Message Correction
 
     # Connect to the XMPP server and start processing XMPP stanzas.
     xmpp.connect()

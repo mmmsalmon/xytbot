@@ -31,5 +31,19 @@ def yt_link_preview(video_id: str) -> str:
             err = "error"
         return err
 
-if __name__ == "__main__": # test
+
+def x_link_preview(url) -> str:
+    try:
+        with yt_dlp.YoutubeDL() as ydl:
+            info = ydl.extract_info(url=url, download=False)
+        data = [
+            f"*{info['uploader']}*",
+            f"{info['description']}",
+        ]
+        return f"{data[0]}\n{data[1]}"
+    except yt_dlp.utils.DownloadError:
+        return None
+
+
+if __name__ == "__main__":  # test
     print(yt_link_preview("bv__9O5CZok"))
