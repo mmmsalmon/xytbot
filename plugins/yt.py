@@ -9,6 +9,8 @@ def yt_link_preview(video_id: str) -> str:
         with yt_dlp.YoutubeDL() as ydl:
             info = ydl.extract_info(url=url, download=False)
         day = info["upload_date"]
+        if "duration_string" not in info:
+            info["duration_string"] = "LIVE"
         data = [
             f"*{info['title']}*",
             f"{info['description'][:80].strip()}...",
