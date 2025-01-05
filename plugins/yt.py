@@ -21,5 +21,15 @@ def yt_link_preview(video_id: str) -> str:
             f"🗓️{day[:4]}-{day[4:6:]}-{day[6:]}",
         ]
         return f"{data[0]}\n{data[1]}\n{' '.join(data[2:])}"
-    except yt_dlp.utils.DownloadError:
-        return "error"
+    except yt_dlp.utils.DownloadError as e:
+        e = str(e)
+        if "Sign in to confirm your age" in e:
+            err = "error: age restricted video"
+        elif "Video unavailable" in e or "Incomplete YouTube ID" in e:
+            err = "error: malformed video ID"
+        else:
+            err = "error"
+        return err
+
+if __name__ == "__main__": # test
+    print(yt_link_preview("bv__9O5CZok"))
