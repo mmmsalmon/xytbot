@@ -11,13 +11,16 @@ def yt_link_preview(video_id: str) -> str:
         day = info["upload_date"]
         if "duration_string" not in info:
             info["duration_string"] = "LIVE"
+        like_count = "(hidden)"
+        if info["like_count"]:  # handle null like_count
+            like_count = numerize(info["like_count"])
         data = [
             f"*{info['title']}*",
             f"{info['description'][:80].strip()}...",
             f"🎥{info['channel']}",
             f"👁️{numerize(info['view_count'])}",
             f"⏳{info['duration_string']}",
-            f"👍🏻{numerize(info['like_count'])}",
+            f"👍🏻{like_count}",
             f"🗓️{day[:4]}-{day[4:6:]}-{day[6:]}",
         ]
         return f"{data[0]}\n{data[1]}\n{' '.join(data[2:])}"
