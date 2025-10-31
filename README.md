@@ -1,4 +1,4 @@
-# bunnybot
+# xytbot
 personal xmpp muc bot
 
 for now it simply parses youtube links through yt-dlp and pretty prints the metadata onto the chat screen.
